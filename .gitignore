@@ -3,6 +3,13 @@ node_modules/
 .env.*
 !.env.example
 
+# Documents and non-code files (preventing any rules/docs from being pushed)
+*.txt
+*.doc
+*.docx
+*.pdf
+*.csv
+
 # Production builds
 dist/
 build/
