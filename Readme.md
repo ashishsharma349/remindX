@@ -47,5 +47,11 @@ RemindX is a simple appointment scheduling system. Users book an appointment thr
    npm run dev
    ```
 
-## Vercel Cron Note
-Vercel serverless functions freeze immediately after sending an HTTP response, meaning background tasks like `node-cron` do not work. To solve this, the reminder logic is exposed as a secured API endpoint (`/api/cron/reminders`). An external service (cron-job.org) is configured to ping this endpoint every 5 minutes with a Bearer token (`CRON_SECRET`) to trigger the reminder emails.
+## How It Works
+1. A user books an appointment through the frontend interface.
+2. An immediate confirmation email is sent to the user.
+3. A background job checks every 5 minutes for appointments scheduled in the next 50-60 minutes.
+4. An automated reminder email is dispatched for those upcoming appointments.
+
+## Submission Notes
+When a user submits the appointment form, the frontend sends a POST request to the backend API. The backend immediately saves the appointment to the database and dispatches a synchronous confirmation email using Nodemailer. A separate Vercel-compatible API endpoint acts as a cron job, triggered externally every 5 minutes, which queries MongoDB for appointments occurring in the next hour and dispatches reminder emails. The hardest part of this build was adapting traditional background cron tasks (like `node-cron`) to work within Vercel's serverless environment, which forcefully kills background processes the moment an HTTP response is sent. Overcoming this required decoupling the cron logic into a secured endpoint triggered by cron-job.org and ensuring all asynchronous email operations were strictly awaited before returning the response. The entire application was built, debugged, and deployed over the course of roughly 6 to 8 hours across two days.
