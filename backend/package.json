@@ -1,0 +1,12 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "assignment",
+  "license": "ISC",
+  "author": "Ashish Sharma",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "npm test"
+  }
+}

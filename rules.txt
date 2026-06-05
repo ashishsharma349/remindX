@@ -1,0 +1,9 @@
+Rules to Follow:
+1. No commits unless explicitly asked by the user.
+2. Step by step changes.
+3. ALL REST PRINCIPLES + API DESIGN BEST principles must be followed (e.g., consistent error format and message format across all API responses. Use '{ ok: true/false }' flag instead of 'success').
+11. Rule 11 (Atomic & Working Commits): Each commit must represent a small, self-contained, compilable, and working increment of value. Never commit broken states.
+12. Rule 12 (Realistic Time Spacing): Avoid automated, instantaneous bulk commits. Space commits naturally (e.g., 35 to 90 minutes apart) to simulate a realistic, focused human coding timeline.
+13. Rule 13 (Simulated Commit Timeline): Manually override the commit date to simulate a realistic coding timeline by using `git commit --date="YYYY-MM-DDTHH:MM:SS" -m "message"`.
+14. Rule 14 (Logical Branching Scopes): Always develop logical scopes (new features, bug fixes, refactorings) on dedicated branches prefixed appropriately (e.g., feat/, fix/, refactor/) before merging them into the main/master branch.
+15. Rule 15 (Non-Fast-Forward Merges): Merge feature branches using git merge --no-ff to retain explicit branch merge points in the repository tree.
