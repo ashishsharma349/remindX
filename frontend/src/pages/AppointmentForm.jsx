@@ -28,21 +28,52 @@ export default function AppointmentForm() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     customerName: '',
-    countryCode: '+1',
+    countryCode: '+91',
     phone: '',
     appointmentTime: ''
   })
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  // Submit appointment to backend API
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const fullPhoneNumber = `${formData.countryCode}${formData.phone}`;
-    console.log("Mock Submit:", { ...formData, fullPhoneNumber });
-    alert("Appointment booked (mock)!");
-    navigate('/dashboard');
+    setError('');
+
+    // Frontend validation — appointment must be in the future
+    if (new Date(formData.appointmentTime) <= new Date()) {
+      setError('Appointment time must be in the future');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerName: formData.customerName.trim(),
+          phone: `${formData.countryCode}${formData.phone}`,
+          appointmentTime: new Date(formData.appointmentTime).toISOString()
+        })
+      });
+
+      const data = await res.json();
+      if (!data.ok) {
+        setError(data.message || 'Something went wrong');
+        return;
+      }
+
+      navigate('/dashboard');
+    } catch (err) {
+      setError('Failed to connect to server');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -121,12 +152,16 @@ export default function AppointmentForm() {
               className="w-full p-4 bg-light-gray border-2 border-border-color rounded-[var(--radius-input)] text-dark-navy font-medium focus:outline-none focus:border-primary-blue focus:bg-white transition-all duration-300"
             />
           </div>
+          {error && (
+            <p className="text-red-500 font-semibold text-sm bg-red-50 p-3 rounded-lg">{error}</p>
+          )}
 
           <button 
             type="submit"
-            className="mt-4 w-full py-5 bg-dark-navy text-white rounded-[var(--radius-input)] font-extrabold uppercase tracking-widest hover:bg-primary-blue hover:-translate-y-1 transition-all duration-300 shadow-[0_10px_20px_rgba(11,9,20,0.2)]"
+            disabled={loading}
+            className="mt-4 w-full py-5 bg-dark-navy text-white rounded-[var(--radius-input)] font-extrabold uppercase tracking-widest hover:bg-primary-blue hover:-translate-y-1 transition-all duration-300 shadow-[0_10px_20px_rgba(11,9,20,0.2)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           >
-            Confirm Appointment
+            {loading ? 'Booking...' : 'Confirm Appointment'}
           </button>
         </form>
       </div>

@@ -1,12 +1,18 @@
 const express = require('express');
 const cors = require('cors');
 const appointmentRoutes = require('./src/routes/appointmentRoutes');
+const cronRoutes = require('./src/routes/cronRoutes');
 const errorHandler = require('./src/middlewares/errorHandler');
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// CORS — whitelist frontend origin
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173').split(',');
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
 app.use(express.json());
 
 // Health check
@@ -16,6 +22,7 @@ app.get('/api/health', (req, res) => {
 
 // Routes
 app.use('/api/appointments', appointmentRoutes);
+app.use('/api/cron', cronRoutes);
 
 // 404 handler
 app.use((req, res) => {
