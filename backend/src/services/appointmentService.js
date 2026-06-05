@@ -20,14 +20,17 @@ class AppointmentService {
     const filter = {};
 
     if (customerName) {
-      filter.customerName = { $regex: customerName, $options: 'i' };
+      const escapedName = customerName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.customerName = { $regex: escapedName, $options: 'i' };
     }
 
     if (date) {
       const start = new Date(date);
-      const end = new Date(date);
-      end.setUTCHours(23, 59, 59, 999);
-      filter.appointmentTime = { $gte: start, $lte: end };
+      if (!isNaN(start.getTime())) {
+        const end = new Date(start);
+        end.setUTCHours(23, 59, 59, 999);
+        filter.appointmentTime = { $gte: start, $lte: end };
+      }
     }
 
     const skip = (page - 1) * limit;

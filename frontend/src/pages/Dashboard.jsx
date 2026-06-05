@@ -19,7 +19,7 @@ export default function Dashboard() {
       if (filterName) params.append('customerName', filterName);
       if (filterDate) params.append('date', filterDate);
 
-      const res = await fetch(`/api/appointments?${params}`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/appointments?${params}`);
       const data = await res.json();
 
       if (!data.ok) {

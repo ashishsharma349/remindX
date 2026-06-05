@@ -47,8 +47,7 @@ class AppointmentController {
         appointmentTime
       });
 
-      // Send confirmation asynchronously
-      emailService.sendConfirmationEmail(email, customerName, appointmentTime);
+      await emailService.sendConfirmationEmail(email, customerName, appointmentTime);
 
       return res.status(201).json({
         ok: true,
@@ -63,7 +62,7 @@ class AppointmentController {
   async getAll(req, res, next) {
     try {
       const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
+      const limit = Math.min(parseInt(req.query.limit) || 10, 50);
       const { customerName, date } = req.query;
 
       const result = await appointmentService.getAppointments({

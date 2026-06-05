@@ -5,7 +5,7 @@ const logger = require('../utils/logger');
 
 // Execute the reminder logic once
 exports.executeReminders = async () => {
-  const windowMinutes = parseInt(process.env.REMINDER_WINDOW_MINUTES) || 30;
+  const windowMinutes = parseInt(process.env.REMINDER_WINDOW_MINUTES) || 60;
   
   try {
     const now = new Date();
@@ -24,8 +24,8 @@ exports.executeReminders = async () => {
     logger.info(`[CRON] Found ${appointments.length} appointment(s) to remind`);
 
     for (const appt of appointments) {
-      whatsappService.sendReminder(appt.phone, appt.customerName, appt.appointmentTime);
-      emailService.sendReminderEmail(appt.email, appt.customerName, appt.appointmentTime);
+      await whatsappService.sendReminder(appt.phone, appt.customerName, appt.appointmentTime);
+      await emailService.sendReminderEmail(appt.email, appt.customerName, appt.appointmentTime);
       await appointmentRepository.markReminderSent(appt._id);
       logger.info(`[CRON] Marked reminder sent for: ${appt.customerName}`);
     }
