@@ -1,40 +1,50 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 
-const DUMMY_DATA = [
-  { id: 1, customerName: 'Alice Smith', phone: '+1234567890', appointmentTime: new Date(Date.now() + 1000 * 60 * 30).toISOString(), reminderSent: false },
-  { id: 2, customerName: 'Bob Johnson', phone: '+1987654321', appointmentTime: new Date(Date.now() + 1000 * 60 * 120).toISOString(), reminderSent: false },
-  { id: 3, customerName: 'Charlie Brown', phone: '+1122334455', appointmentTime: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), reminderSent: true },
-];
+const LIMIT = 10;
 
 export default function Dashboard() {
-  const [appointments, setAppointments] = useState(DUMMY_DATA);
+  const [appointments, setAppointments] = useState([]);
+  const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
   const [filterName, setFilterName] = useState('');
   const [filterDate, setFilterDate] = useState('');
-  const [withinOneHour, setWithinOneHour] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
+  // Fetch appointments from backend
+  const fetchAppointments = useCallback(async (page = 1) => {
+    setLoading(true);
+    setError('');
+    try {
+      const params = new URLSearchParams({ page, limit: LIMIT });
+      if (filterName) params.append('customerName', filterName);
+      if (filterDate) params.append('date', filterDate);
+
+      const res = await fetch(`/api/appointments?${params}`);
+      const data = await res.json();
+
+      if (!data.ok) {
+        setError(data.message || 'Failed to fetch appointments');
+        return;
+      }
+
+      setAppointments(data.data);
+      setPagination(data.pagination);
+    } catch (err) {
+      setError('Failed to connect to server');
+    } finally {
+      setLoading(false);
+    }
+  }, [filterName, filterDate]);
+
+  // Refetch on filter change
   useEffect(() => {
-    const interval = setInterval(() => {
-      console.log("Polling backend for new appointments...");
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+    fetchAppointments(1);
+  }, [fetchAppointments]);
 
-  const filteredAppointments = appointments.filter(appt => {
-    const apptDate = new Date(appt.appointmentTime);
-    const now = new Date();
-    
-    if (filterName && !appt.customerName.toLowerCase().includes(filterName.toLowerCase())) return false;
-    if (filterDate) {
-      const selectedDate = new Date(filterDate).toDateString();
-      if (apptDate.toDateString() !== selectedDate) return false;
-    }
-    if (withinOneHour) {
-      const diffMs = apptDate - now;
-      const diffMins = Math.floor(diffMs / 60000);
-      if (diffMins < 0 || diffMins > 60) return false;
-    }
-    return true;
-  });
+  // Page navigation
+  const goToPage = (page) => {
+    fetchAppointments(page);
+  };
 
   return (
     <div className="max-w-[900px] mx-auto bg-white p-10 md:p-12 rounded-[var(--radius-card)] shadow-premium relative overflow-hidden">
@@ -46,7 +56,6 @@ export default function Dashboard() {
           <p className="text-gray-500 font-medium">Manage and track your upcoming appointments in real-time.</p>
         </div>
         
-        {/* Filters */}
         <div className="flex flex-wrap gap-4 items-center bg-light-gray p-4 rounded-[var(--radius-input)] border-2 border-border-color">
           <input 
             type="text" 
@@ -61,26 +70,23 @@ export default function Dashboard() {
             onChange={(e) => setFilterDate(e.target.value)}
             className="px-4 py-2.5 rounded-[10px] border border-border-color font-medium focus:border-primary-blue focus:bg-white outline-none text-sm transition-colors"
           />
-          <label className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-dark-navy cursor-pointer ml-2">
-            <input 
-              type="checkbox" 
-              checked={withinOneHour}
-              onChange={(e) => setWithinOneHour(e.target.checked)}
-              className="w-5 h-5 accent-primary-blue rounded"
-            />
-            &lt; 1 Hour
-          </label>
         </div>
       </div>
 
+      {error && (
+        <p className="text-red-500 font-semibold text-sm bg-red-50 p-3 rounded-lg mb-6">{error}</p>
+      )}
+
       <div className="flex flex-col gap-5">
-        {filteredAppointments.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-16 text-gray-500 font-medium">Loading...</div>
+        ) : appointments.length === 0 ? (
           <div className="text-center py-16 text-gray-500 font-medium bg-light-gray rounded-[var(--radius-input)] border-2 border-dashed border-border-color">
             No appointments found matching your criteria.
           </div>
         ) : (
-          filteredAppointments.map(appt => (
-            <div key={appt.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 border-2 border-[#CBD5E1] shadow-sm rounded-[var(--radius-input)] hover:border-primary-blue hover:shadow-[0_10px_25px_rgba(59,96,228,0.15)] transition-all duration-300 bg-white group">
+          appointments.map(appt => (
+            <div key={appt._id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 border-2 border-[#CBD5E1] shadow-sm rounded-[var(--radius-input)] hover:border-primary-blue hover:shadow-[0_10px_25px_rgba(59,96,228,0.15)] transition-all duration-300 bg-white group">
               <div className="flex flex-col">
                 <h3 className="font-extrabold text-xl text-dark-navy group-hover:text-primary-blue transition-colors tracking-tight">{appt.customerName}</h3>
                 <span className="text-sm font-semibold text-gray-500 mt-1">{appt.phone}</span>
@@ -102,6 +108,29 @@ export default function Dashboard() {
           ))
         )}
       </div>
+
+      {/* Pagination — only show if more than one page */}
+      {pagination.totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <button
+            onClick={() => goToPage(pagination.page - 1)}
+            disabled={pagination.page <= 1}
+            className="px-5 py-2.5 rounded-[10px] font-bold text-sm bg-dark-navy text-white hover:bg-primary-blue transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            ← Prev
+          </button>
+          <span className="font-bold text-sm text-gray-600">
+            Page {pagination.page} of {pagination.totalPages}
+          </span>
+          <button
+            onClick={() => goToPage(pagination.page + 1)}
+            disabled={pagination.page >= pagination.totalPages}
+            className="px-5 py-2.5 rounded-[10px] font-bold text-sm bg-dark-navy text-white hover:bg-primary-blue transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            Next →
+          </button>
+        </div>
+      )}
     </div>
   )
 }
