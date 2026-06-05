@@ -17,9 +17,9 @@ class AppointmentRepository {
     return Appointment.findById(id).lean();
   }
 
-  async findUpcomingUnreminded(windowEnd) {
+  async findUpcomingUnreminded(windowStart, windowEnd) {
     return Appointment.find({
-      appointmentTime: { $lte: windowEnd },
+      appointmentTime: { $gte: windowStart, $lte: windowEnd },
       reminderSent: false
     }).lean();
   }
