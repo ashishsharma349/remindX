@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-primary-blue: #3B60E4;
+  --color-bg-blue: #426DF0;
+  --color-dark-navy: #0B0914;
+  --color-light-gray: #F8FAFC;
+  --color-border-color: #E2E8F0;
+  --color-accent-blue: #6B9DF2;
+  
+  --radius-card: 32px;
+  --radius-input: 16px;
+  
+  --font-sans: 'Outfit', sans-serif;
+}
+
+@layer base {
+  body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--color-bg-blue);
+    /* Rich, deep mesh gradient instead of flat blue */
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(228,100%,74%,1) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(245,100%,71%,1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(227,100%,50%,1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(222,100%,65%,1) 0px, transparent 50%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+}
+
+/* Custom Deep Shadows */
+.shadow-premium {
+  box-shadow: 0 30px 60px -12px rgba(11, 9, 20, 0.25), 0 18px 36px -18px rgba(11, 9, 20, 0.3);
+}
