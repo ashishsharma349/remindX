@@ -3,6 +3,6 @@ const router = express.Router();
 const cronController = require('../controllers/cronController');
 
 // Vercel cron trigger
-router.post('/reminders', cronController.triggerReminders);
+router.get('/reminders', cronController.triggerReminders);
 
 module.exports = router;

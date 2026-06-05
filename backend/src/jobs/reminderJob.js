@@ -1,5 +1,6 @@
 const appointmentRepository = require('../repositories/appointmentRepository');
 const whatsappService = require('../services/whatsappService');
+const emailService = require('../services/emailService');
 const logger = require('../utils/logger');
 
 // Execute the reminder logic once
@@ -24,6 +25,7 @@ exports.executeReminders = async () => {
 
     for (const appt of appointments) {
       whatsappService.sendReminder(appt.phone, appt.customerName, appt.appointmentTime);
+      emailService.sendReminderEmail(appt.email, appt.customerName, appt.appointmentTime);
       await appointmentRepository.markReminderSent(appt._id);
       logger.info(`[CRON] Marked reminder sent for: ${appt.customerName}`);
     }

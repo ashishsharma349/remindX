@@ -12,6 +12,12 @@ const appointmentSchema = new mongoose.Schema(
       required: [true, 'Phone number is required'],
       trim: true
     },
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
+      trim: true,
+      lowercase: true
+    },
     appointmentTime: {
       type: Date,
       required: [true, 'Appointment time is required']

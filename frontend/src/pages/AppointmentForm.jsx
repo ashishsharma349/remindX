@@ -30,6 +30,7 @@ export default function AppointmentForm() {
     customerName: '',
     countryCode: '+91',
     phone: '',
+    email: '',
     appointmentTime: ''
   })
   const [loading, setLoading] = useState(false);
@@ -43,14 +44,22 @@ export default function AppointmentForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
-    // Frontend validation — appointment must be in the future
-    if (new Date(formData.appointmentTime) <= new Date()) {
-      setError('Appointment time must be in the future');
+    if (!formData.email.toLowerCase().endsWith('@gmail.com')) {
+      setError('Please use a valid @gmail.com address');
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
+    const selectedTime = new Date(formData.appointmentTime);
+    const now = new Date();
+    if (selectedTime <= now) {
+      setError('Appointment time must be in the future');
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch('/api/appointments', {
         method: 'POST',
@@ -58,6 +67,7 @@ export default function AppointmentForm() {
         body: JSON.stringify({
           customerName: formData.customerName.trim(),
           phone: `${formData.countryCode}${formData.phone}`,
+          email: formData.email.trim(),
           appointmentTime: new Date(formData.appointmentTime).toISOString()
         })
       });
@@ -139,6 +149,19 @@ export default function AppointmentForm() {
                 className="flex-1 p-4 bg-light-gray border-2 border-border-color rounded-[var(--radius-input)] text-dark-navy font-medium focus:outline-none focus:border-primary-blue focus:bg-white transition-all duration-300"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+            <input 
+              type="email"
+              name="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="e.g. your.email@gmail.com"
+              className="w-full px-5 py-4 bg-gray-50/50 border border-gray-200 rounded-[var(--radius-input)] text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all placeholder-gray-400 font-medium"
+            />
           </div>
 
           <div className="flex flex-col gap-2">

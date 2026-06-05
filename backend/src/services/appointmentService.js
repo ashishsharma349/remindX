@@ -2,10 +2,11 @@ const appointmentRepository = require('../repositories/appointmentRepository');
 const whatsappService = require('./whatsappService');
 
 class AppointmentService {
-  async createAppointment({ customerName, phone, appointmentTime }) {
+  async createAppointment({ customerName, phone, email, appointmentTime }) {
     const appointment = await appointmentRepository.create({
       customerName,
       phone,
+      email,
       appointmentTime: new Date(appointmentTime)
     });
 

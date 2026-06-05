@@ -1,23 +1,33 @@
 const appointmentService = require('../services/appointmentService');
+const emailService = require('../services/emailService');
 
 class AppointmentController {
   async create(req, res, next) {
     try {
-      const { customerName, phone, appointmentTime } = req.body;
+      const { customerName, phone, email, appointmentTime } = req.body;
 
       // Required fields
-      if (!customerName || !phone || !appointmentTime) {
+      if (!customerName || !phone || !email || !appointmentTime) {
         return res.status(400).json({
           ok: false,
-          message: 'Missing required fields: customerName, phone, appointmentTime'
+          message: 'Missing required fields: customerName, phone, email, appointmentTime'
         });
       }
 
       // Type safety — prevent NoSQL injection
-      if (typeof customerName !== 'string' || typeof phone !== 'string' || typeof appointmentTime !== 'string') {
+      if (typeof customerName !== 'string' || typeof phone !== 'string' || typeof email !== 'string' || typeof appointmentTime !== 'string') {
         return res.status(400).json({
           ok: false,
           message: 'Invalid field types: all fields must be strings'
+        });
+      }
+
+      // Validate email format (must be Gmail)
+      const emailRegex = /^[^\s@]+@gmail\.com$/i;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({
+          ok: false,
+          message: 'Please use a valid @gmail.com address'
         });
       }
 
@@ -33,8 +43,12 @@ class AppointmentController {
       const appointment = await appointmentService.createAppointment({
         customerName: customerName.trim(),
         phone,
+        email,
         appointmentTime
       });
+
+      // Send confirmation asynchronously
+      emailService.sendConfirmationEmail(email, customerName, appointmentTime);
 
       return res.status(201).json({
         ok: true,

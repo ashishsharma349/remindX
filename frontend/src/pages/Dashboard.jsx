@@ -89,7 +89,10 @@ export default function Dashboard() {
             <div key={appt._id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 border-2 border-[#CBD5E1] shadow-sm rounded-[var(--radius-input)] hover:border-primary-blue hover:shadow-[0_10px_25px_rgba(59,96,228,0.15)] transition-all duration-300 bg-white group">
               <div className="flex flex-col">
                 <h3 className="font-extrabold text-xl text-dark-navy group-hover:text-primary-blue transition-colors tracking-tight">{appt.customerName}</h3>
-                <span className="text-sm font-semibold text-gray-500 mt-1">{appt.phone}</span>
+                <div className="flex flex-col mt-1">
+                  <span className="text-sm font-semibold text-gray-900">{appt.phone}</span>
+                  <span className="text-sm text-gray-500">{appt.email}</span>
+                </div>
                 <div className="mt-3">
                   <span className={`text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider shadow-sm ${appt.reminderSent ? 'bg-[#10B981] text-white' : 'bg-[#F59E0B] text-white'}`}>
                     {appt.reminderSent ? 'Reminder Sent' : 'Pending'}

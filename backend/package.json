@@ -16,6 +16,7 @@
     "express": "^5.1.0",
     "mongoose": "^8.15.1",
     "node-cron": "^3.0.3",
+    "nodemailer": "^8.0.10",
     "winston": "^3.17.0"
   }
 }
