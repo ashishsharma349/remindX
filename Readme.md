@@ -54,4 +54,12 @@ RemindX is a simple appointment scheduling system. Users book an appointment thr
 4. An automated reminder email is dispatched for those upcoming appointments.
 
 ## Submission Notes
-When a user submits the appointment form, the frontend sends a POST request to the backend API. The backend immediately saves the appointment to the database and dispatches a synchronous confirmation email using Nodemailer. A separate Vercel-compatible API endpoint acts as a cron job, triggered externally every 5 minutes, which queries MongoDB for appointments occurring in the next hour and dispatches reminder emails. The hardest part of this build was adapting traditional background cron tasks (like `node-cron`) to work within Vercel's serverless environment, which forcefully kills background processes the moment an HTTP response is sent. Overcoming this required decoupling the cron logic into a secured endpoint triggered by cron-job.org and ensuring all asynchronous email operations were strictly awaited before returning the response. The entire application was built, debugged, and deployed over the course of roughly 6 to 8 hours across two days.
+# 0 Tools Used
+already mentioned above
+# 1. Data Flow
+When a user submits the appointment form, 
+the frontend sends a POST request to the backend API. 
+The backend immediately saves the appointment to the database and dispatches a asynchronous(using await ) confirmation email using Nodemailer.
+A separate Vercel-compatible API endpoint acts as a cron job, triggered externally using cronjob.org every 5 minutes ,which queries MongoDB for appointments finds those with time left between 50 to 60 minutes and dispatches reminder emails. 
+# 2. Hardest Part
+The hardest part of this build was adapting traditional background cron tasks (like `node-cron`) to work within Vercel's serverless environment, which forcefully kills background processes the moment an HTTP response is sent. Overcoming this required decoupling the cron logic into a secured endpoint triggered by cron-job.org. The entire application was built, debugged, and deployed over the course of roughly 6 to 8 hours across two days.

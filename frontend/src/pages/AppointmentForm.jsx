@@ -98,7 +98,7 @@ export default function AppointmentForm() {
           Schedule a New Appointment
         </h1>
         <p className="text-white/90 text-lg leading-relaxed font-medium">
-          Enter the customer details below. The system will automatically queue and send a WhatsApp confirmation.
+          Enter the customer details below. The system will automatically queue and send an email confirmation.
         </p>
       </div>
 
@@ -125,7 +125,7 @@ export default function AppointmentForm() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="font-bold text-sm text-dark-navy ml-1 uppercase tracking-wider">Phone Number (WhatsApp)</label>
+            <label className="font-bold text-sm text-dark-navy ml-1 uppercase tracking-wider">Phone Number</label>
             <div className="flex gap-3">
               <select 
                 name="countryCode"
